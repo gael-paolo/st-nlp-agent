@@ -968,7 +968,6 @@ if st.session_state.funcionalidad:
                                 st.text(resultado)
                     
                     else:  # Agrupamiento con K-means usando embeddings
-                        st.info(f"🔧 Generando embeddings usando {provider}...")
                         
                         # Generar embeddings
                         embeddings = generar_embeddings(textos)
