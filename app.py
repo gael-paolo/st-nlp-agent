@@ -25,7 +25,7 @@ st.set_page_config(
 )
 
 st.title("🤖 Analytics Assistant Pro")
-st.markdown("**Análisis inteligente con IA - 7 Funcionalidades**")
+st.markdown("**Análisis inteligente con IA - 6 Funcionalidades**")
 
 # =========================================================
 # CONFIGURACIÓN DE API
@@ -179,117 +179,6 @@ def procesar_documento(archivo):
 # =========================================================
 # FUNCIONES AUXILIARES
 # =========================================================
-def analizar_sentimiento_manual(textos):
-    """Análisis básico de sentimiento basado en palabras clave"""
-    positivas = ['excelente', 'bueno', 'genial', 'fantástico', 'recomiendo', 'satisfecho', 
-                 'perfecto', 'maravilloso', 'increíble', 'feliz', 'contento']
-    negativas = ['malo', 'horrible', 'terrible', 'pésimo', 'decepcionante', 'decepcionado',
-                 'lento', 'caro', 'difícil', 'complejo', 'problema', 'error', 'falla']
-    
-    resultados = []
-    for texto in textos:
-        texto_lower = texto.lower()
-        count_pos = sum(1 for palabra in positivas if palabra in texto_lower)
-        count_neg = sum(1 for palabra in negativas if palabra in texto_lower)
-        
-        if count_pos > count_neg:
-            resultado = "POSITIVO"
-        elif count_neg > count_pos:
-            resultado = "NEGATIVO"
-        else:
-            resultado = "NEUTRAL"
-        
-        resultados.append({
-            "texto": texto[:100] + "..." if len(texto) > 100 else texto,
-            "sentimiento": resultado,
-            "puntuacion_pos": count_pos,
-            "puntuacion_neg": count_neg
-        })
-    
-    return resultados
-
-def extraer_informacion_manual(textos, campos_personalizados):
-    """Extracción básica de información usando patrones personalizados"""
-    patrones_base = {
-        "nombre": r"[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+",
-        "email": r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
-        "telefono": r"\b(?:\+\d{1,3}[-.]?)?\d{3}[-.]?\d{3}[-.]?\d{4}\b",
-        "fecha": r"\b\d{2}[/-]\d{2}[/-]\d{4}\b|\b\d{4}[/-]\d{2}[/-]\d{2}\b",
-        "monto": r"\$\s?\d+(?:[.,]\d{3})*(?:[.,]\d{2})?|\b\d+(?:[.,]\d{3})*(?:[.,]\d{2})?\s?(?:USD|€|£|bs)\b",
-        "cedula": r"\b\d{7,10}\b|\b[VEve]-?\d{7,9}\b",
-        "direccion": r"(?:Calle|Avenida|Av\.|Cra\.|Carrera)\s+\w+\s+(?:#\s?\d+[-\s]?\d*|[Nn]°\s?\d+)",
-        "referencia": r"(?:Ref|REF|ref\.?|Referencia):?\s*[A-Za-z0-9\s]+"
-    }
-    
-    # Construir patrones personalizados
-    patrones = {}
-    for campo in campos_personalizados:
-        campo_lower = campo.lower()
-        encontrado = False
-        
-        # Buscar en patrones base
-        for key, patron in patrones_base.items():
-            if key in campo_lower or campo_lower in key:
-                patrones[campo] = patron
-                encontrado = True
-                break
-        
-        # Si no se encuentra, crear patrón básico
-        if not encontrado:
-            patrones[campo] = r"\b" + re.escape(campo) + r":?\s*([^\n,;]+)"
-    
-    resultados = []
-    for texto in textos:
-        extracciones = {}
-        for campo, patron in patrones.items():
-            matches = re.findall(patron, texto, re.IGNORECASE)
-            if matches:
-                # Limpiar y filtrar resultados
-                matches_limpios = []
-                for match in matches[:5]:  # Limitar a 5 coincidencias
-                    if isinstance(match, tuple):
-                        match = ' '.join([m for m in match if m])
-                    if match and len(str(match).strip()) > 1:
-                        matches_limpios.append(str(match).strip())
-                
-                if matches_limpios:
-                    extracciones[campo] = matches_limpios
-        
-        resultados.append({
-            "texto": texto[:150] + "..." if len(texto) > 150 else texto,
-            "extracciones": extracciones if extracciones else {"info": "No se encontraron datos estructurados"}
-        })
-    
-    return resultados
-
-def clasificar_textos_manual(textos, categorias):
-    """Clasificación básica basada en palabras clave"""
-    resultados = []
-    palabras_clave = {}
-    
-    # Crear diccionario de palabras clave para cada categoría
-    for categoria in categorias:
-        palabras_clave[categoria.lower()] = categoria.lower().split()
-    
-    for texto in textos:
-        texto_lower = texto.lower()
-        mejor_categoria = "Sin categoría"
-        mejor_puntuacion = 0
-        
-        for categoria, palabras in palabras_clave.items():
-            puntuacion = sum(1 for palabra in palabras if palabra in texto_lower)
-            if puntuacion > mejor_puntuacion:
-                mejor_puntuacion = puntuacion
-                mejor_categoria = categoria
-        
-        resultados.append({
-            "texto": texto[:100] + "..." if len(texto) > 100 else texto,
-            "categoria": mejor_categoria.upper(),
-            "confianza": min(mejor_puntuacion * 20, 100)  # Puntuación simple
-        })
-    
-    return resultados
-
 def agrupar_textos_manual(textos, n_clusters=3):
     """Agrupamiento básico de textos usando TF-IDF y similitud de coseno"""
     if len(textos) < n_clusters:
@@ -387,18 +276,12 @@ funcionalidades = {
         "icono": "👥"
     },
     "5": {
-        "nombre": "📄 Generador de Reportes",
-        "descripcion": "Genera reportes ejecutivos automáticamente",
-        "ejemplo": "Resumen de datos, hallazgos clave, recomendaciones",
-        "icono": "📊"
-    },
-    "6": {
         "nombre": "✉️ Redactor de Correos",
         "descripcion": "Crea correos profesionales parametrizados",
         "ejemplo": "Correos comerciales, seguimientos, anuncios",
         "icono": "📧"
     },
-    "7": {
+    "6": {
         "nombre": "💡 Constructor de Prompts",
         "descripcion": "Crea prompts profesionales para IA",
         "ejemplo": "Mejorar prompts básicos, estructurar consultas",
@@ -442,7 +325,7 @@ if st.session_state.funcionalidad:
     # 1. ANÁLISIS DE SENTIMIENTO
     # =========================================================
     if st.session_state.funcionalidad == "1":
-        st.subheader("📝 Análisis de Sentimiento")
+        st.subheader("📝 Análisis de Sentimiento con IA")
         
         # Opciones para cargar datos
         opcion_datos = st.radio(
@@ -502,119 +385,99 @@ if st.session_state.funcionalidad:
             col1, col2 = st.columns(2)
             
             with col1:
-                metodo = st.radio(
-                    "Método de análisis:",
-                    ["Usar IA (preciso)", "Análisis básico (rápido)"]
-                )
-                
                 incluir_detalles = st.checkbox("Mostrar detalles técnicos", value=True)
             
             with col2:
-                if metodo == "Usar IA (preciso)":
-                    temperatura = st.slider("Precisión/Temperatura:", 0.0, 1.0, 0.1, 0.1)
+                temperatura = st.slider("Precisión/Temperatura:", 0.0, 1.0, 0.1, 0.1)
             
             if st.button("🔍 Analizar Sentimiento", type="primary"):
-                with st.spinner("Analizando sentimientos..."):
-                    if metodo == "Usar IA (preciso)":
-                        # Análisis con IA
-                        prompt = f"""
-                        Analiza el sentimiento de los siguientes textos y clasifícalos como POSITIVO, NEUTRAL o NEGATIVO.
-                        
-                        Para cada texto, proporciona:
-                        1. Sentimiento (POSITIVO/NEUTRAL/NEGATIVO)
-                        2. Confianza (0-100%)
-                        3. Palabras clave que influyeron
-                        4. Breve explicación
-                        
-                        Textos:
-                        {chr(10).join([f'{i+1}. {t}' for i, t in enumerate(textos)])}
-                        
-                        Devuelve el resultado en formato JSON con esta estructura:
+                with st.spinner("Analizando sentimientos con IA..."):
+                    # Análisis con IA
+                    prompt = f"""
+                    Analiza el sentimiento de los siguientes textos y clasifícalos como POSITIVO, NEUTRAL o NEGATIVO.
+                    
+                    Para cada texto, proporciona:
+                    1. Sentimiento (POSITIVO/NEUTRAL/NEGATIVO)
+                    2. Confianza (0-100%)
+                    3. Palabras clave que influyeron
+                    4. Breve explicación
+                    
+                    Textos:
+                    {chr(10).join([f'{i+1}. {t}' for i, t in enumerate(textos)])}
+                    
+                    Devuelve el resultado en formato JSON con esta estructura:
+                    {{
+                      "analisis": [
                         {{
-                          "analisis": [
-                            {{
-                              "texto": "texto original",
-                              "sentimiento": "POSITIVO/NEUTRAL/NEGATIVO",
-                              "confianza": "85%",
-                              "palabras_clave": ["palabra1", "palabra2"],
-                              "explicacion": "Breve explicación"
-                            }}
-                          ],
-                          "resumen": {{
-                            "total": 10,
-                            "positivos": 4,
-                            "neutrales": 3,
-                            "negativos": 3,
-                            "sentimiento_promedio": "NEUTRAL"
-                          }}
+                          "texto": "texto original",
+                          "sentimiento": "POSITIVO/NEUTRAL/NEGATIVO",
+                          "confianza": "85%",
+                          "palabras_clave": ["palabra1", "palabra2"],
+                          "explicacion": "Breve explicación"
                         }}
-                        """
-                        
-                        resultado = llamar_ia(prompt, temperatura=temperatura)
-                        
-                        if resultado:
-                            try:
-                                # Intentar extraer JSON
-                                json_match = re.search(r'\{.*\}', resultado, re.DOTALL)
-                                if json_match:
-                                    datos = json.loads(json_match.group())
-                                else:
-                                    # Si no es JSON válido, mostrar texto directo
-                                    st.markdown("### Resultados del Análisis")
-                                    st.text(resultado)
-                                    datos = None
-                                
-                                if datos:
-                                    # Mostrar resultados
-                                    st.subheader("📊 Resultados del Análisis")
-                                    
-                                    # Resumen
-                                    if "resumen" in datos:
-                                        res = datos["resumen"]
-                                        col_res1, col_res2, col_res3 = st.columns(3)
-                                        with col_res1:
-                                            st.metric("Positivos", res.get("positivos", 0))
-                                        with col_res2:
-                                            st.metric("Neutrales", res.get("neutrales", 0))
-                                        with col_res3:
-                                            st.metric("Negativos", res.get("negativos", 0))
-                                    
-                                    # Detalle
-                                    if "analisis" in datos:
-                                        df_resultados = pd.DataFrame(datos["analisis"])
-                                        st.dataframe(df_resultados, use_container_width=True)
-                                        
-                                        # Gráfico
-                                        if "sentimiento" in df_resultados.columns:
-                                            fig, ax = plt.subplots(figsize=(8, 4))
-                                            df_resultados["sentimiento"].value_counts().plot(kind='bar', ax=ax, color=['green', 'gray', 'red'])
-                                            ax.set_title("Distribución de Sentimientos")
-                                            ax.set_xlabel("Sentimiento")
-                                            ax.set_ylabel("Cantidad")
-                                            st.pyplot(fig)
-                                        
-                            except json.JSONDecodeError:
+                      ],
+                      "resumen": {{
+                        "total": 10,
+                        "positivos": 4,
+                        "neutrales": 3,
+                        "negativos": 3,
+                        "sentimiento_promedio": "NEUTRAL"
+                      }}
+                    }}
+                    """
+                    
+                    resultado = llamar_ia(prompt, temperatura=temperatura)
+                    
+                    if resultado:
+                        try:
+                            # Intentar extraer JSON
+                            json_match = re.search(r'\{.*\}', resultado, re.DOTALL)
+                            if json_match:
+                                datos = json.loads(json_match.group())
+                            else:
+                                # Si no es JSON válido, mostrar texto directo
                                 st.markdown("### Resultados del Análisis")
                                 st.text(resultado)
-                    
-                    else:  # Análisis básico
-                        resultados = analizar_sentimiento_manual(textos)
-                        df_resultados = pd.DataFrame(resultados)
-                        
-                        st.subheader("📊 Resultados del Análisis Básico")
-                        st.dataframe(df_resultados, use_container_width=True)
-                        
-                        # Estadísticas
-                        total = len(resultados)
-                        positivos = sum(1 for r in resultados if r["sentimiento"] == "POSITIVO")
-                        negativos = sum(1 for r in resultados if r["sentimiento"] == "NEGATIVO")
-                        neutrales = total - positivos - negativos
+                                datos = None
+                            
+                            if datos:
+                                # Mostrar resultados
+                                st.subheader("📊 Resultados del Análisis")
+                                
+                                # Resumen
+                                if "resumen" in datos:
+                                    res = datos["resumen"]
+                                    col_res1, col_res2, col_res3 = st.columns(3)
+                                    with col_res1:
+                                        st.metric("Positivos", res.get("positivos", 0))
+                                    with col_res2:
+                                        st.metric("Neutrales", res.get("neutrales", 0))
+                                    with col_res3:
+                                        st.metric("Negativos", res.get("negativos", 0))
+                                
+                                # Detalle
+                                if "analisis" in datos:
+                                    df_resultados = pd.DataFrame(datos["analisis"])
+                                    st.dataframe(df_resultados, use_container_width=True)
+                                    
+                                    # Gráfico
+                                    if "sentimiento" in df_resultados.columns:
+                                        fig, ax = plt.subplots(figsize=(8, 4))
+                                        df_resultados["sentimiento"].value_counts().plot(kind='bar', ax=ax, color=['green', 'gray', 'red'])
+                                        ax.set_title("Distribución de Sentimientos")
+                                        ax.set_xlabel("Sentimiento")
+                                        ax.set_ylabel("Cantidad")
+                                        st.pyplot(fig)
+                                
+                        except json.JSONDecodeError:
+                            st.markdown("### Resultados del Análisis")
+                            st.text(resultado)
     
     # =========================================================
     # 2. EXTRACCIÓN DE INFORMACIÓN
     # =========================================================
     elif st.session_state.funcionalidad == "2":
-        st.subheader("🔍 Extracción de Información Personalizada")
+        st.subheader("🔍 Extracción de Información Personalizada con IA")
         
         # Configurar campos personalizados
         st.write("### ⚙️ Configurar Campos a Extraer")
@@ -707,152 +570,103 @@ if st.session_state.funcionalidad:
             col1, col2 = st.columns(2)
             
             with col1:
-                metodo = st.radio(
-                    "Método de extracción:",
-                    ["Usar IA (inteligente)", "Extracción básica (patrones)"]
-                )
-                
+                temperatura = st.slider("Precisión/Temperatura:", 0.0, 1.0, 0.1, 0.1)
                 max_resultados = st.slider("Máximo resultados por campo:", 1, 10, 3)
             
             with col2:
-                if metodo == "Usar IA (inteligente)":
-                    temperatura = st.slider("Precisión/Temperatura:", 0.0, 1.0, 0.1, 0.1)
-                
                 formatear_tabla = st.checkbox("Formatear como tabla", value=True)
             
             if st.button("🔍 Extraer Información", type="primary"):
-                with st.spinner("Extrayendo información..."):
-                    if metodo == "Usar IA (inteligente)":
-                        prompt = f"""
-                        Extrae la siguiente información de los textos proporcionados:
-                        CAMPOS SOLICITADOS: {', '.join(campos_personalizados)}
-                        
-                        Para cada texto, extrae TODA la información relevante de los campos solicitados.
-                        Si un campo no está presente en el texto, déjalo vacío.
-                        
-                        Textos:
-                        {chr(10).join([f'{i+1}. {t}' for i, t in enumerate(textos)])}
-                        
-                        Devuelve el resultado en formato JSON con esta estructura:
+                with st.spinner("Extrayendo información con IA..."):
+                    prompt = f"""
+                    Extrae la siguiente información de los textos proporcionados:
+                    CAMPOS SOLICITADOS: {', '.join(campos_personalizados)}
+                    
+                    Para cada texto, extrae TODA la información relevante de los campos solicitados.
+                    Si un campo no está presente en el texto, déjalo vacío.
+                    
+                    Textos:
+                    {chr(10).join([f'{i+1}. {t}' for i, t in enumerate(textos)])}
+                    
+                    Devuelve el resultado en formato JSON con esta estructura:
+                    {{
+                      "extracciones": [
                         {{
-                          "extracciones": [
-                            {{
-                              "texto_original": "texto completo",
-                              "campos_extraidos": {{
-                                "campo1": "valor1",
-                                "campo2": "valor2",
-                                ...
-                              }}
-                            }}
-                          ],
-                          "resumen": {{
-                            "total_textos": {len(textos)},
-                            "campos_encontrados": ["campo1", "campo2"],
-                            "textos_con_datos": 5
+                          "texto_original": "texto completo",
+                          "campos_extraidos": {{
+                            "campo1": "valor1",
+                            "campo2": "valor2",
+                            ...
                           }}
                         }}
-                        
-                        Solo devuelve valores extraídos, no inventes información.
-                        """
-                        
-                        resultado = llamar_ia(prompt, temperatura=temperatura, max_tokens=2000)
-                        
-                        if resultado:
-                            try:
-                                json_match = re.search(r'\{.*\}', resultado, re.DOTALL)
-                                if json_match:
-                                    datos = json.loads(json_match.group())
-                                    
-                                    st.subheader("📋 Información Extraída")
-                                    
-                                    if "extracciones" in datos:
-                                        # Crear DataFrame para mostrar
-                                        filas = []
-                                        for extraccion in datos["extracciones"]:
-                                            fila = {"Texto": extraccion['texto_original'][:100] + "..."}
-                                            campos = extraccion.get('campos_extraidos', {})
-                                            for campo in campos_personalizados:
-                                                fila[campo] = campos.get(campo, 'No encontrado')
-                                            filas.append(fila)
-                                        
-                                        df_resultados = pd.DataFrame(filas)
-                                        
-                                        if formatear_tabla:
-                                            st.dataframe(df_resultados, use_container_width=True)
-                                        else:
-                                            for i, fila in enumerate(filas):
-                                                with st.expander(f"Registro {i+1}: {fila['Texto']}"):
-                                                    for campo, valor in fila.items():
-                                                        if campo != 'Texto':
-                                                            st.write(f"**{campo.title()}:** {valor}")
-                                    
-                                    # Mostrar estadísticas
-                                    if "resumen" in datos:
-                                        st.subheader("📊 Estadísticas de Extracción")
-                                        res = datos["resumen"]
-                                        cols_stats = st.columns(3)
-                                        with cols_stats[0]:
-                                            st.metric("Total textos", res.get("total_textos", 0))
-                                        with cols_stats[1]:
-                                            st.metric("Textos con datos", res.get("textos_con_datos", 0))
-                                        with cols_stats[2]:
-                                            campos_encontrados = res.get("campos_encontrados", [])
-                                            st.metric("Campos encontrados", len(campos_encontrados))
-                                        
-                                        # Mostrar campos encontrados
-                                        st.write("**Campos extraídos exitosamente:**")
-                                        st.write(", ".join(campos_encontrados) if campos_encontrados else "Ninguno")
-                                
-                            except json.JSONDecodeError:
-                                st.markdown("### Resultados de Extracción")
-                                st.text(resultado)
+                      ],
+                      "resumen": {{
+                        "total_textos": {len(textos)},
+                        "campos_encontrados": ["campo1", "campo2"],
+                        "textos_con_datos": 5
+                      }}
+                    }}
                     
-                    else:  # Extracción básica con patrones
-                        resultados = extraer_informacion_manual(textos, campos_personalizados)
-                        
-                        st.subheader("📋 Información Extraída (Patrones)")
-                        
-                        # Crear tabla consolidada
-                        datos_tabla = []
-                        for i, resultado in enumerate(resultados):
-                            fila = {"Registro": i+1, "Texto": resultado['texto']}
-                            extracciones = resultado['extracciones']
-                            
-                            for campo in campos_personalizados:
-                                if campo in extracciones and extracciones[campo]:
-                                    if isinstance(extracciones[campo], list):
-                                        fila[campo] = "; ".join(extracciones[campo][:max_resultados])
+                    Solo devuelve valores extraídos, no inventes información.
+                    """
+                    
+                    resultado = llamar_ia(prompt, temperatura=temperatura, max_tokens=2000)
+                    
+                    if resultado:
+                        try:
+                            json_match = re.search(r'\{.*\}', resultado, re.DOTALL)
+                            if json_match:
+                                datos = json.loads(json_match.group())
+                                
+                                st.subheader("📋 Información Extraída")
+                                
+                                if "extracciones" in datos:
+                                    # Crear DataFrame para mostrar
+                                    filas = []
+                                    for extraccion in datos["extracciones"]:
+                                        fila = {"Texto": extraccion['texto_original'][:100] + "..."}
+                                        campos = extraccion.get('campos_extraidos', {})
+                                        for campo in campos_personalizados:
+                                            fila[campo] = campos.get(campo, 'No encontrado')
+                                        filas.append(fila)
+                                    
+                                    df_resultados = pd.DataFrame(filas)
+                                    
+                                    if formatear_tabla:
+                                        st.dataframe(df_resultados, use_container_width=True)
                                     else:
-                                        fila[campo] = str(extracciones[campo])
-                                else:
-                                    fila[campo] = "No encontrado"
+                                        for i, fila in enumerate(filas):
+                                            with st.expander(f"Registro {i+1}: {fila['Texto']}"):
+                                                for campo, valor in fila.items():
+                                                    if campo != 'Texto':
+                                                        st.write(f"**{campo.title()}:** {valor}")
+                                
+                                # Mostrar estadísticas
+                                if "resumen" in datos:
+                                    st.subheader("📊 Estadísticas de Extracción")
+                                    res = datos["resumen"]
+                                    cols_stats = st.columns(3)
+                                    with cols_stats[0]:
+                                        st.metric("Total textos", res.get("total_textos", 0))
+                                    with cols_stats[1]:
+                                        st.metric("Textos con datos", res.get("textos_con_datos", 0))
+                                    with cols_stats[2]:
+                                        campos_encontrados = res.get("campos_encontrados", [])
+                                        st.metric("Campos encontrados", len(campos_encontrados))
+                                    
+                                    # Mostrar campos encontrados
+                                    st.write("**Campos extraídos exitosamente:**")
+                                    st.write(", ".join(campos_encontrados) if campos_encontrados else "Ninguno")
                             
-                            datos_tabla.append(fila)
-                        
-                        df_resultados = pd.DataFrame(datos_tabla)
-                        
-                        if formatear_tabla:
-                            st.dataframe(df_resultados, use_container_width=True)
-                            
-                            # Opción para descargar
-                            csv = df_resultados.to_csv(index=False).encode('utf-8')
-                            st.download_button(
-                                "📥 Descargar como CSV",
-                                csv,
-                                file_name=f"extraccion_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                                mime="text/csv"
-                            )
-                        else:
-                            for fila in datos_tabla:
-                                with st.expander(f"Registro {fila['Registro']}: {fila['Texto']}"):
-                                    for campo in campos_personalizados:
-                                        st.write(f"**{campo.title()}:** {fila[campo]}")
+                        except json.JSONDecodeError:
+                            st.markdown("### Resultados de Extracción")
+                            st.text(resultado)
     
     # =========================================================
     # 3. CLASIFICACIÓN DE TEXTOS
     # =========================================================
     elif st.session_state.funcionalidad == "3":
-        st.subheader("⚠️ Clasificación de Textos")
+        st.subheader("⚠️ Clasificación de Textos con IA")
         
         # Opciones para cargar datos
         opcion_datos = st.radio(
@@ -917,95 +731,73 @@ if st.session_state.funcionalidad:
                 categorias = ["CATEGORÍA 1", "CATEGORÍA 2", "CATEGORÍA 3"]
                 st.warning("Usando categorías por defecto")
             
-            metodo = st.radio(
-                "Método de clasificación:",
-                ["Usar IA (inteligente)", "Clasificación básica (rápido)"]
-            )
+            temperatura = st.slider("Precisión/Temperatura:", 0.0, 1.0, 0.1, 0.1)
             
             if st.button("🏷️ Clasificar Textos", type="primary"):
-                with st.spinner("Clasificando textos..."):
-                    if metodo == "Usar IA (inteligente)":
-                        prompt = f"""
-                        Clasifica los siguientes textos en estas categorías:
-                        Categorías disponibles: {', '.join(categorias)}
-                        
-                        Para cada texto:
-                        1. Asigna la categoría más apropiada
-                        2. Proporciona una confianza del 0-100%
-                        3. Da una breve justificación
-                        
-                        Textos:
-                        {chr(10).join([f'{i+1}. {t}' for i, t in enumerate(textos)])}
-                        
-                        Devuelve el resultado en formato JSON con esta estructura:
-                        {{
-                          "clasificaciones": [
-                            {{
-                              "texto": "texto original",
-                              "categoria": "CATEGORÍA ASIGNADA",
-                              "confianza": "85%",
-                              "justificacion": "Breve explicación"
-                            }}
-                          ],
-                          "distribucion": {{
-                            "CATEGORÍA 1": 3,
-                            "CATEGORÍA 2": 2,
-                            "CATEGORÍA 3": 1
-                          }},
-                          "categoria_mas_comun": "CATEGORÍA 1"
-                        }}
-                        """
-                        
-                        resultado = llamar_ia(prompt, temperatura=0.1)
-                        
-                        if resultado:
-                            try:
-                                json_match = re.search(r'\{.*\}', resultado, re.DOTALL)
-                                if json_match:
-                                    datos = json.loads(json_match.group())
-                                    
-                                    st.subheader("📊 Resultados de Clasificación")
-                                    
-                                    # Mostrar distribución
-                                    if "distribucion" in datos:
-                                        st.write("**Distribución por categoría:**")
-                                        dist = datos["distribucion"]
-                                        fig, ax = plt.subplots(figsize=(10, 4))
-                                        categorias_dist = list(dist.keys())
-                                        valores = list(dist.values())
-                                        ax.bar(categorias_dist, valores)
-                                        ax.set_title("Distribución de Clasificaciones")
-                                        ax.set_xlabel("Categoría")
-                                        ax.set_ylabel("Cantidad")
-                                        plt.xticks(rotation=45)
-                                        st.pyplot(fig)
-                                    
-                                    # Mostrar detalles
-                                    if "clasificaciones" in datos:
-                                        df_clasificaciones = pd.DataFrame(datos["clasificaciones"])
-                                        st.dataframe(df_clasificaciones, use_container_width=True)
-                                
-                            except json.JSONDecodeError:
-                                st.markdown("### Resultados de Clasificación")
-                                st.text(resultado)
+                with st.spinner("Clasificando textos con IA..."):
+                    prompt = f"""
+                    Clasifica los siguientes textos en estas categorías:
+                    Categorías disponibles: {', '.join(categorias)}
                     
-                    else:  # Clasificación básica
-                        resultados = clasificar_textos_manual(textos, categorias)
-                        df_resultados = pd.DataFrame(resultados)
-                        
-                        st.subheader("📊 Resultados de Clasificación (Básica)")
-                        st.dataframe(df_resultados, use_container_width=True)
-                        
-                        # Distribución
-                        st.write("**Distribución:**")
-                        distribucion = df_resultados["categoria"].value_counts()
-                        fig, ax = plt.subplots(figsize=(8, 4))
-                        distribucion.plot(kind='bar', ax=ax)
-                        ax.set_title("Distribución por Categoría")
-                        ax.set_xlabel("Categoría")
-                        ax.set_ylabel("Cantidad")
-                        plt.xticks(rotation=45)
-                        st.pyplot(fig)
+                    Para cada texto:
+                    1. Asigna la categoría más apropiada
+                    2. Proporciona una confianza del 0-100%
+                    3. Da una breve justificación
+                    
+                    Textos:
+                    {chr(10).join([f'{i+1}. {t}' for i, t in enumerate(textos)])}
+                    
+                    Devuelve el resultado en formato JSON con esta estructura:
+                    {{
+                      "clasificaciones": [
+                        {{
+                          "texto": "texto original",
+                          "categoria": "CATEGORÍA ASIGNADA",
+                          "confianza": "85%",
+                          "justificacion": "Breve explicación"
+                        }}
+                      ],
+                      "distribucion": {{
+                        "CATEGORÍA 1": 3,
+                        "CATEGORÍA 2": 2,
+                        "CATEGORÍA 3": 1
+                      }},
+                      "categoria_mas_comun": "CATEGORÍA 1"
+                    }}
+                    """
+                    
+                    resultado = llamar_ia(prompt, temperatura=temperatura)
+                    
+                    if resultado:
+                        try:
+                            json_match = re.search(r'\{.*\}', resultado, re.DOTALL)
+                            if json_match:
+                                datos = json.loads(json_match.group())
+                                
+                                st.subheader("📊 Resultados de Clasificación")
+                                
+                                # Mostrar distribución
+                                if "distribucion" in datos:
+                                    st.write("**Distribución por categoría:**")
+                                    dist = datos["distribucion"]
+                                    fig, ax = plt.subplots(figsize=(10, 4))
+                                    categorias_dist = list(dist.keys())
+                                    valores = list(dist.values())
+                                    ax.bar(categorias_dist, valores)
+                                    ax.set_title("Distribución de Clasificaciones")
+                                    ax.set_xlabel("Categoría")
+                                    ax.set_ylabel("Cantidad")
+                                    plt.xticks(rotation=45)
+                                    st.pyplot(fig)
+                                
+                                # Mostrar detalles
+                                if "clasificaciones" in datos:
+                                    df_clasificaciones = pd.DataFrame(datos["clasificaciones"])
+                                    st.dataframe(df_clasificaciones, use_container_width=True)
+                            
+                        except json.JSONDecodeError:
+                            st.markdown("### Resultados de Clasificación")
+                            st.text(resultado)
     
     # =========================================================
     # 4. AGRUPAMIENTO DE TEXTOS
@@ -1276,146 +1068,9 @@ if st.session_state.funcionalidad:
                             st.dataframe(df_resultados, use_container_width=True)
     
     # =========================================================
-    # 5. GENERADOR DE REPORTES
+    # 5. REDACTOR DE CORREOS
     # =========================================================
     elif st.session_state.funcionalidad == "5":
-        st.subheader("📊 Generador de Reportes Ejecutivos")
-        
-        # Opciones para cargar datos
-        opcion_datos = st.radio(
-            "Fuente de datos:",
-            ["Cargar archivo (PDF/DOCX/TXT)", "Pegar texto", "Usar ejemplo"]
-        )
-        
-        contenido = ""
-        
-        if opcion_datos == "Cargar archivo (PDF/DOCX/TXT)":
-            archivo = st.file_uploader("Sube tu documento", type=["txt", "pdf", "docx", "csv"])
-            if archivo:
-                if archivo.name.endswith('.txt'):
-                    contenido = extraer_texto_txt(archivo)
-                elif archivo.name.endswith('.csv'):
-                    df = pd.read_csv(archivo)
-                    contenido = df.to_string()
-                elif archivo.name.endswith('.pdf') or archivo.name.endswith('.docx'):
-                    contenido = procesar_documento(archivo)
-                
-                if contenido:
-                    st.success(f"✅ Documento cargado: {len(contenido)} caracteres")
-                    with st.expander("📄 Ver contenido extraído"):
-                        st.text(contenido[:1000] + "..." if len(contenido) > 1000 else contenido)
-                else:
-                    st.error("No se pudo extraer contenido del documento")
-        
-        elif opcion_datos == "Pegar texto":
-            contenido = st.text_area("Pega el contenido del documento:", height=200)
-        
-        else:  # Usar ejemplo
-            contenido = """
-            Análisis de Ventas Q4 2024
-            ==========================
-            
-            RESUMEN EJECUTIVO:
-            Las ventas del Q4 2024 mostraron un crecimiento del 15% respecto al trimestre anterior, 
-            alcanzando $2.5M en ingresos. El producto estrella fue el "Solución CRM Enterprise", 
-            que representó el 40% de las ventas totales.
-            
-            HALLAZGOS CLAVE:
-            1. Crecimiento del 25% en el segmento empresarial
-            2. Reducción del 10% en costos de adquisición de clientes
-            3. Aumento del 30% en ventas recurrentes
-            4. Disminución del 5% en la tasa de churn
-            
-            RIESGOS IDENTIFICADOS:
-            - Dependencia excesiva de un solo producto (40% de ventas)
-            - Competencia agresiva en el segmento SMB
-            - Posible escasez de componentes electrónicos
-            
-            OPORTUNIDADES:
-            - Expansión al mercado latinoamericano
-            - Desarrollo de producto móvil
-            - Alianzas estratégicas con consultoras
-            
-            RECOMENDACIONES:
-            1. Diversificar el portafolio de productos
-            2. Invertir en marketing digital
-            3. Fortalecer el equipo de desarrollo
-            4. Establecer partnerships regionales
-            """
-            st.text_area("Documento de ejemplo:", contenido, height=200)
-        
-        # Configurar reporte
-        st.subheader("⚙️ Configurar Reporte")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            tipo_reporte = st.selectbox(
-                "Tipo de reporte:",
-                ["Resumen Ejecutivo", "Reporte Detallado", "Presentación Ejecutiva", "Análisis Técnico"]
-            )
-            
-            longitud = st.select_slider(
-                "Longitud:",
-                options=["Breve", "Moderada", "Extensa"],
-                value="Moderada"
-            )
-        
-        with col2:
-            incluir = st.multiselect(
-                "Incluir secciones:",
-                ["Resumen Ejecutivo", "Hallazgos Clave", "Riesgos", 
-                 "Oportunidades", "Recomendaciones", "Acciones", "Conclusiones", "Metodología"],
-                default=["Resumen Ejecutivo", "Hallazgos Clave", "Recomendaciones"]
-            )
-            
-            audiencia = st.selectbox(
-                "Audiencia:",
-                ["Ejecutivos", "Gerentes", "Equipo Técnico", "General", "Inversores"]
-            )
-        
-        if st.button("📄 Generar Reporte", type="primary"):
-            if not contenido.strip():
-                st.error("Por favor, proporciona contenido para analizar")
-            else:
-                with st.spinner("Generando reporte ejecutivo..."):
-                    prompt = f"""
-                    Basándote en el siguiente documento, genera un reporte {tipo_reporte} 
-                    para audiencia {audiencia} con longitud {longitud}.
-                    
-                    DOCUMENTO:
-                    {contenido[:10000]}  # Limitar a 10000 caracteres para no exceder tokens
-                    
-                    INCLUIR LAS SIGUIENTES SECCIONES:
-                    {', '.join(incluir)}
-                    
-                    ESTRUCTURA EL REPORTE DE MANERA PROFESIONAL.
-                    
-                    Si el documento tiene datos numéricos, incluye análisis cuantitativo.
-                    Si tiene información cualitativa, incluye análisis temático.
-                    """
-                    
-                    reporte = llamar_ia(prompt, temperatura=0.1, max_tokens=3000)
-                    
-                    if reporte:
-                        st.success("✅ Reporte generado exitosamente")
-                        
-                        # Mostrar reporte
-                        st.subheader("📋 Reporte Generado")
-                        st.markdown(reporte)
-                        
-                        # Opción para descargar
-                        st.download_button(
-                            "📥 Descargar Reporte",
-                            reporte,
-                            file_name=f"reporte_ejecutivo_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
-                            mime="text/plain"
-                        )
-    
-    # =========================================================
-    # 6. REDACTOR DE CORREOS
-    # =========================================================
-    elif st.session_state.funcionalidad == "6":
         st.subheader("📧 Redactor de Correos Profesionales")
         
         col1, col2 = st.columns(2)
@@ -1562,9 +1217,9 @@ if st.session_state.funcionalidad:
                     )
     
     # =========================================================
-    # 7. CONSTRUCTOR DE PROMPTS
+    # 6. CONSTRUCTOR DE PROMPTS
     # =========================================================
-    elif st.session_state.funcionalidad == "7":
+    elif st.session_state.funcionalidad == "6":
         st.subheader("💡 Constructor de Prompts Profesionales")
         
         col1, col2 = st.columns(2)
@@ -1715,7 +1370,7 @@ if st.session_state.funcionalidad:
 # =========================================================
 else:
     st.info("""
-    ### 🎯 7 Funcionalidades Disponibles:
+    ### 🎯 6 Funcionalidades Disponibles:
     
     **Análisis de Texto:**
     1. 📝 Análisis de Sentimiento
@@ -1724,9 +1379,8 @@ else:
     4. 📊 Agrupamiento de Textos
     
     **Generación y Redacción:**
-    5. 📄 Generador de Reportes
-    6. ✉️ Redactor de Correos
-    7. 💡 Constructor de Prompts
+    5. ✉️ Redactor de Correos
+    6. 💡 Constructor de Prompts
     
     ### 📋 Cómo usar:
     1. Configura tu API Key
