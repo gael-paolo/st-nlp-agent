@@ -1018,48 +1018,6 @@ if st.session_state.funcionalidad:
                             plt.tight_layout()
                             st.pyplot(fig)
                             
-                            # Análisis de cada cluster usando IA
-                            st.subheader("🔍 Análisis Semántico de Clusters")
-                            
-                            for cluster_id in range(n_grupos):
-                                textos_cluster = [textos[i] for i in range(len(textos)) if clusters[i] == cluster_id]
-                                
-                                if textos_cluster:
-                                    with st.expander(f"Grupo {cluster_id + 1} ({len(textos_cluster)} textos)", expanded=True):
-                                        # Análisis del cluster con IA
-                                        prompt_analisis = f"""
-                                        Analiza los siguientes textos que pertenecen a un mismo cluster (agrupados por similitud semántica):
-                                        
-                                        Textos del cluster:
-                                        {chr(10).join([f'- {t}' for t in textos_cluster[:10]])}
-                                        {f'... y {len(textos_cluster) - 10} más' if len(textos_cluster) > 10 else ''}
-                                        
-                                        Proporciona:
-                                        1. Tema principal del cluster
-                                        2. Sentimiento predominante (positivo/neutral/negativo)
-                                        3. 3-5 palabras clave que definen el cluster
-                                        4. Resumen de 2-3 líneas
-                                        
-                                        Formato de respuesta:
-                                        Tema: [tema principal]
-                                        Sentimiento: [positivo/neutral/negativo]
-                                        Palabras clave: [palabra1, palabra2, palabra3]
-                                        Resumen: [resumen breve]
-                                        """
-                                        
-                                        analisis = llamar_ia(prompt_analisis, temperatura=0.1)
-                                        
-                                        if analisis:
-                                            # Parsear respuesta
-                                            lineas = analisis.split('\n')
-                                            for linea in lineas:
-                                                if linea.strip():
-                                                    st.write(f"**{linea.strip()}**")
-                                        
-                                        # Mostrar ejemplos de textos
-                                        st.write("**Ejemplos de textos en este cluster:**")
-                                        for i, texto in enumerate(textos_cluster[:3]):
-                                            st.write(f"{i+1}. {texto}")
                         else:
                             st.error("No se pudieron generar embeddings. Usando método alternativo...")
                             # Fallback a agrupamiento tradicional
